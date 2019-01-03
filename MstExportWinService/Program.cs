@@ -22,12 +22,12 @@ namespace MstExportWinService
             ServiceBase.Run(ServicesToRun);
 
 //#if (!DEBUG)
-//                                                                                    ServiceBase[] ServicesToRun;
-//                                                                                    ServicesToRun = new ServiceBase[] 
-//                                                                                    { 
-//                                                                                        new DeliveryStreamCloudService1() 
-//                                                                                    };
-//                                                                                    ServiceBase.Run(ServicesToRun);
+//                                                                                                ServiceBase[] ServicesToRun;
+//                                                                                                ServicesToRun = new ServiceBase[] 
+//                                                                                                { 
+//                                                                                                    new DeliveryStreamCloudService1() 
+//                                                                                                };
+//                                                                                                ServiceBase.Run(ServicesToRun);
 //#else
 
 //            GenerateOfflineDB.CallWebService();

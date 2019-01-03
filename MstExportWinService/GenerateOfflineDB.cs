@@ -40,6 +40,8 @@ namespace MstExportWinService
             string filepath = "";
             try
             {
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
                 SqlConnection con = new SqlConnection(ConnStr);
                 con.Open();
 
@@ -65,6 +67,24 @@ namespace MstExportWinService
                 cmd.Connection = con;
 
                 SqlDataAdapter sa = new SqlDataAdapter();
+
+
+                //SalesContractSalesAlias
+                string SalesContractSalesAliasQry = @"SELECT SysTrxNo,
+                                                        SysTrxLine,
+                                                        StandardAcctID,
+                                                        ContractID,
+                                                        ContractDescr,
+                                                        SalesAliasID,
+                                                        StartDate,
+                                                        EndDate,
+                                                        VendorProductxRef,
+                                                        CompanyID FROM  SalesContractSalesAlias";
+                cmd.CommandText = SalesContractSalesAliasQry;
+                sa = new SqlDataAdapter();
+                sa.SelectCommand = cmd;
+                sa.Fill(dtSalesContractSalesAlias);
+               
                 //Products
 
                 //string ProdQry = "SELECT DISTINCT INS.SiteID, MasterProdID, ParentID, P.Code,REPLACE( P.Descr,'" + "" + "','') Descr, P.SellByUOMID, SU.Code as SellByUOM, P.DefOnHandUOMID, U.Code as OnHandUOM," +
@@ -77,7 +97,7 @@ namespace MstExportWinService
                                  " (SELECT Explanation FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE MasterProdID = P.MasterProdID)) AND" +
                                  " MasterProdType = 'P') as CriticalDescription," +
                                  " P.BIUOMID, BI.Code as BIUOM, CASE WHEN BI.IsPackaged = 'N' THEN 'Y' ELSE 'N' END as BIEnableTankReadings, 'N' as AllowNegative," +
-                                 " P.CompanyID,P.CustomerID,P.TemperatureCorrectID, P.SpecificGravity,P.IsBulk,P.VendorProductxRef FROM Products P" +
+                                 " P.CompanyID,P.CustomerID,P.TemperatureCorrectID, P.SpecificGravity,P.IsBulk FROM Products P" +
                                  " LEFT JOIN UOM U ON P.CustomerID = U.CustomerID AND P.DefOnHandUOMID = U.UOMID" +
                                  " LEFT JOIN UOM SU ON P.CustomerID = SU.CustomerID AND P.SellByUOMID = SU.UOMID" +
                                  " LEFT JOIN UOM CV ON P.CustomerID = CV.CustomerID AND P.DefConversionUOMID = CV.UOMID" +
@@ -111,17 +131,17 @@ namespace MstExportWinService
                                  " LEFT JOIN HzrdMaterialsInstruction H ON P.CustomerID = H.CustomerID AND P.HzrdMaterialID = H.HzrdMaterialID" +
                                  " UNION ALL" +//Added for Masterproduct type 'P'
                                  " SELECT null as SiteID, MasterProdID, ParentID, ProdId, P.Code, RTRIM(REPLACE( REPLACE( P.Descr,',',' '),'\"\','')) Descr, P.SellByUOMID," +
-                                 " SU.Code as SellByUOM, P.DefOnHandUOMID,U.Code as OnHandUOM, null AS OnCountUOM, null as OnCountUOMID ,P.DefConversionUOMID,"+
-                                 " CV.Code as OnConversionUOM, U.ConversionFactor, ISNULL(SU.IsPackaged, 'N') IsPackaged, CASE WHEN P.MasterProdType = 'B' THEN 'Y'"+
-                                 " ELSE 'N' END as IsBillable, 0 as UnitPrice,0 as AvailableQty, MasterProdType, H.Descr as HazmatDesc, (SELECT Explanation"+
-                                 " FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE"+
-                                 " MasterProdID = P.MasterProdID)) AND MasterProdType = 'P') as CriticalDescription, P.BIUOMID, BI.Code as BIUOM, CASE WHEN"+
-                                 " BI.IsPackaged = 'N' THEN 'Y' ELSE 'N' END as BIEnableTankReadings,"+
-                                 " 'N' as AllowNegative, P.CompanyID,P.CustomerID, P.TemperatureCorrectID, P.SpecificGravity, P.IsBulk,P.VendorProductxRef" +
-                                 " from Products P LEFT JOIN UOM U ON P.CustomerID = U.CustomerID AND P.DefOnHandUOMID ="+
-                                 " U.UOMID LEFT JOIN UOM SU ON P.CustomerID = SU.CustomerID AND P.SellByUOMID = SU.UOMID LEFT JOIN UOM CV ON P.CustomerID ="+
-                                 " CV.CustomerID AND P.DefConversionUOMID = CV.UOMID LEFT JOIN UOM CN ON P.CustomerID = CN.CustomerID AND P.DefCountUOMID = CN.UOMID"+
-                                 " LEFT JOIN UOM BI ON P.CustomerID = BI.CustomerID AND P.BIUOMID = BI.UOMID LEFT JOIN"+
+                                 " SU.Code as SellByUOM, P.DefOnHandUOMID,U.Code as OnHandUOM, null AS OnCountUOM, null as OnCountUOMID ,P.DefConversionUOMID," +
+                                 " CV.Code as OnConversionUOM, U.ConversionFactor, ISNULL(SU.IsPackaged, 'N') IsPackaged, CASE WHEN P.MasterProdType = 'B' THEN 'Y'" +
+                                 " ELSE 'N' END as IsBillable, 0 as UnitPrice,0 as AvailableQty, MasterProdType, H.Descr as HazmatDesc, (SELECT Explanation" +
+                                 " FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE MasterProdID = (SELECT ParentID FROM Products WHERE" +
+                                 " MasterProdID = P.MasterProdID)) AND MasterProdType = 'P') as CriticalDescription, P.BIUOMID, BI.Code as BIUOM, CASE WHEN" +
+                                 " BI.IsPackaged = 'N' THEN 'Y' ELSE 'N' END as BIEnableTankReadings," +
+                                 " 'N' as AllowNegative, P.CompanyID,P.CustomerID, P.TemperatureCorrectID, P.SpecificGravity, P.IsBulk" +
+                                 " from Products P LEFT JOIN UOM U ON P.CustomerID = U.CustomerID AND P.DefOnHandUOMID =" +
+                                 " U.UOMID LEFT JOIN UOM SU ON P.CustomerID = SU.CustomerID AND P.SellByUOMID = SU.UOMID LEFT JOIN UOM CV ON P.CustomerID =" +
+                                 " CV.CustomerID AND P.DefConversionUOMID = CV.UOMID LEFT JOIN UOM CN ON P.CustomerID = CN.CustomerID AND P.DefCountUOMID = CN.UOMID" +
+                                 " LEFT JOIN UOM BI ON P.CustomerID = BI.CustomerID AND P.BIUOMID = BI.UOMID LEFT JOIN" +
                                  " HzrdMaterialsInstruction H ON P.CustomerID = H.CustomerID AND P.HzrdMaterialID = H.HzrdMaterialID  where P.MasterProdType = 'P'";
 
                 cmd.CommandText = ProdQry;
@@ -129,6 +149,8 @@ namespace MstExportWinService
                 sa.SelectCommand = cmd;
                 sa.Fill(dtProducts);
                 //Products
+
+
 
                 //INSite
                 string INSiteQry = "SELECT SiteID, Code + ' - ' + CompanyID as Code, LongDescr, FormattedAddress, FormattedLineAddress, INSiteType, CompanyID, CustomerID, LastModifiedDtTm, EnableElectronicDOI, EnableMarineDelivery, SiteType, Inactive" +
@@ -412,6 +434,10 @@ namespace MstExportWinService
                     //    "HazmatDesc TEXT, CriticalDescription TEXT, BIUOMID TEXT, BIUOM TEXT, BIEnableTankReadings TEXT, AllowNegative TEXT, CompanyID TEXT, CustomerID TEXT)";
                     SqlLtcommand.ExecuteNonQuery();
 
+                    SqlLtcommand.CommandText = @"CREATE TABLE SalesContractSalesAlias (SysTrxNo NUMERIC(20,0) ,SysTrxLine INT,StandardAcctID INTEGER,ContractID VARCHAR(24),ContractDescr VARCHAR(50),SalesAliasID INT,StartDate DOUBLE,EndDate DOUBLE,VendorProductxRef VARCHAR(40),CompanyID VARCHAR(8))";
+                    SqlLtcommand.ExecuteNonQuery();
+
+
                     SqlLtcommand.CommandText = "Create Table INSite (SiteID int, Code TEXT, LongDescr TEXT, FormattedAddress TEXT, FormattedLineAddress TEXT, INSiteType TEXT, CompanyID TEXT, CustomerID TEXT)";
                     SqlLtcommand.ExecuteNonQuery();
 
@@ -524,11 +550,33 @@ namespace MstExportWinService
                                 SqlLtcommand.Parameters.AddWithValue("@TemperatureCorrectID", dtProducts.Rows[i]["TemperatureCorrectID"].ToString().Trim());
                                 SqlLtcommand.Parameters.AddWithValue("@SpecificGravity", dtProducts.Rows[i]["SpecificGravity"].ToString().Trim());
                                 SqlLtcommand.Parameters.AddWithValue("@IsBulk", dtProducts.Rows[i]["IsBulk"].ToString().Trim());
-                                SqlLtcommand.Parameters.AddWithValue("@VendorProductxRef", dtProducts.Rows[i]["VendorProductxRef"].ToString().Trim());
 
                                 SqlLtcommand.ExecuteNonQuery();
                             }
                             //Products
+
+                            //SalesContractSalesAlias
+                            for (int i = 0; i < dtSalesContractSalesAlias.Rows.Count; i++)
+                            {
+                                SqlLtcommand.CommandText = @"INSERT INTO SalesContractSalesAlias(SysTrxNo,SysTrxLine,StandardAcctID,ContractID,ContractDescr,SalesAliasID,StartDate,EndDate,VendorProductxRef,CompanyID )      
+                                                            VALUES ( @SysTrxNo,@SysTrxLine,@StandardAcctID,@ContractID,@ContractDescr,@SalesAliasID,@StartDate,@EndDate,@VendorProductxRef,@CompanyID)";
+
+                                SqlLtcommand.Parameters.AddWithValue("@SysTrxNo", dtSalesContractSalesAlias.Rows[i]["SysTrxNo"]);
+                                SqlLtcommand.Parameters.AddWithValue("@SysTrxLine", dtSalesContractSalesAlias.Rows[i]["SysTrxLine"]);
+                                SqlLtcommand.Parameters.AddWithValue("@StandardAcctID", dtSalesContractSalesAlias.Rows[i]["StandardAcctID"]);
+                                SqlLtcommand.Parameters.AddWithValue("@ContractID", dtSalesContractSalesAlias.Rows[i]["ContractID"]);
+                                SqlLtcommand.Parameters.AddWithValue("@ContractDescr", dtSalesContractSalesAlias.Rows[i]["ContractDescr"]);
+                                SqlLtcommand.Parameters.AddWithValue("@SalesAliasID", dtSalesContractSalesAlias.Rows[i]["SalesAliasID"]);
+                                SqlLtcommand.Parameters.AddWithValue("@StartDate", (Convert.ToDateTime(dtSalesContractSalesAlias.Rows[i]["StartDate"]).ToUniversalTime() - epoch).TotalSeconds);
+
+                                SqlLtcommand.Parameters.AddWithValue("@EndDate", dtSalesContractSalesAlias.Rows[i]["EndDate"] != DBNull.Value
+                                    ? (Convert.ToDateTime(dtSalesContractSalesAlias.Rows[i]["EndDate"]).ToUniversalTime() - epoch).TotalSeconds : 0);
+                                SqlLtcommand.Parameters.AddWithValue("@VendorProductxRef", dtSalesContractSalesAlias.Rows[i]["VendorProductxRef"]);
+                                SqlLtcommand.Parameters.AddWithValue("@CompanyID", dtSalesContractSalesAlias.Rows[i]["CompanyID"]);
+
+                                SqlLtcommand.ExecuteNonQuery();
+                            }
+
 
                             //INSite
                             for (int i = 0; i < dtINSite.Rows.Count; i++)
@@ -882,14 +930,14 @@ namespace MstExportWinService
                             //ProdCont
 
                             //InSiteTankProductAPI
-                            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
                             for (int i = 0; i < dtInSiteTankProductAPI.Rows.Count; i++)
                             {
                                 SqlLtcommand.CommandText =
 
                                 "INSERT INTO InSiteTank_ProductAPI (ProductAPIID, InSiteTankID, ProdContID, API_Rating, Notes, EffDtTm, CustomerID) VALUES" +
                                 "(@ProductAPIID,@InSiteTankID,@ProdContID,@API_Rating,@Notes,@EffDtTm,@CustomerID)";
-                                
+
                                 SqlLtcommand.Parameters.AddWithValue("@ProductAPIID", dtInSiteTankProductAPI.Rows[i]["ProductAPIID"].ToString().Trim());
                                 SqlLtcommand.Parameters.AddWithValue("@InSiteTankID", dtInSiteTankProductAPI.Rows[i]["InSiteTankID"].ToString().Trim());
                                 SqlLtcommand.Parameters.AddWithValue("@ProdContID", dtInSiteTankProductAPI.Rows[i]["ProdContID"].ToString().Trim());
@@ -981,7 +1029,7 @@ namespace MstExportWinService
                 }
                 m_dbConnection.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logging.WriteToFileException("Error in DB File Creation - " + ex.Message);
             }
@@ -1017,7 +1065,7 @@ namespace MstExportWinService
                 {
                     sourceBlob.UploadFromStream(fileStream);
                 }
-                
+
                 destinationBlob.StartCopy(sourceBlob);
 
                 destinationBlob.Properties.CacheControl = "no-store";
@@ -1025,11 +1073,11 @@ namespace MstExportWinService
 
                 sourceBlob.Delete(DeleteSnapshotsOption.IncludeSnapshots);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 //Logging.WriteLog("Error in CloudStorage - " + ex.Message, EventLogEntryType.Error);
                 Logging.WriteToFileException("Error in CloudStorage - " + ex.Message);
             }
-        } 
+        }
     }
 }
